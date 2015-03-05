@@ -1,0 +1,13 @@
+#!/bin/sh
+
+_MOUNTS=`mount | grep -o '^/dev/mapper/[^ ]*' | sort -u`
+for mount in $_MOUNTS; do
+    readlink -e $mount | grep -q '/dm-[0-9]\+$' && umount -v $mount
+done
+
+_DEVICES=`find /dev/mapper -lname '../dm-*' -printf '%f\n'`
+for device in $_DEVICES; do
+    printf "Closing device %s ... " $device
+    cryptsetup close $device
+    [ $? -eq 0 ] && echo OK || echo FAILED
+done

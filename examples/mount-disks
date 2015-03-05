@@ -1,0 +1,10 @@
+#!/bin/sh
+
+xargs cryptsetup-multi-open <<EOF
+UUID=abcdef01-2345-6789-abcd-ef0123456789 disk0
+UUID=abcdef12-3456-789a-bcde-f01234567890 disk1
+EOF
+
+[ $? -eq 0 ] || exit 1
+
+mount -v /dev/mapper/disk0 /mnt/disk
