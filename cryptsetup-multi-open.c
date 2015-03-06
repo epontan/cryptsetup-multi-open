@@ -14,7 +14,7 @@ char *pass;
 void usage(int code)
 {
     printf("usage: %s <device> <name> [<device> <name>] ...\n\n", prog);
-    printf("version: " VERSION "\n");
+    printf("%s " VERSION " - Copyright (C) 2015 Pontus Andersson\n", prog);
     exit(code);
 }
 

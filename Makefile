@@ -7,7 +7,7 @@ LDFLAGS = ${DEBUG} ${LIBS}
 CC = cc
 LD = ${CC}
 
-VERSION = git-$$(git rev-list -n1 --abbrev-commit HEAD)
+VERSION = $$(git describe --tags HEAD)
 BIN = cryptsetup-multi-open
 SRC = cryptsetup-multi-open.c
 OBJ = ${SRC:.c=.o}
