@@ -7,26 +7,45 @@ LDFLAGS = ${DEBUG} ${LIBS}
 CC = cc
 LD = ${CC}
 
-VERSION = $$(git describe --tags HEAD)
+VERSION = $$(git describe)
 BIN = cryptsetup-multi-open
 SRC = cryptsetup-multi-open.c
 OBJ = ${SRC:.c=.o}
 
-all: ${BIN}
+all: options ${BIN}
+
+options:
+	@echo ${BIN} build options:
+	@echo "CFLAGS   = ${CFLAGS}"
+	@echo "LDFLAGS  = ${LDFLAGS}"
+	@echo "CC       = ${CC}"
+	@echo "LD       = ${LD}"
 
 ${BIN}: ${OBJ}
-	${LD} -o $@ ${OBJ} ${LDFLAGS}
+	@echo LD $@
+	@${LD} -o $@ ${OBJ} ${LDFLAGS}
 	@if [ -z "${DEBUG}" ]; then echo "Stripping $@"; strip $@; fi
 
 .c.o:
-	${CC} -c ${CFLAGS} $<
+	@echo CC $@
+	@${CC} -c ${CFLAGS} $<
 
 debug: DEBUG = -ggdb
 debug: all
 
 clean:
 	@echo cleaning
-	@rm -f ${BIN} ${OBJ}
+	@rm -rf ${BIN} ${OBJ} ${BIN}-${VERSION}*
+
+dist: clean
+	@echo creating dist tarball
+	@mkdir -p ${BIN}-${VERSION}
+	@cp -R examples/ LICENSE Makefile README.md ${SRC} ${BIN}-${VERSION}
+	@sed -i "/^VERSION *=/s/=.*/= ${VERSION}/" ${BIN}-${VERSION}/Makefile
+	@tar -cf ${BIN}-${VERSION}.tar ${BIN}-${VERSION}
+	@gzip ${BIN}-${VERSION}.tar
+	@rm -rf ${BIN}-${VERSION}
+	@md5sum ${BIN}-${VERSION}.tar.gz
 
 install: all
 	@echo installing executable file to ${DESTDIR}${PREFIX}/bin
@@ -38,4 +57,4 @@ uninstall:
 	@echo removing executable file from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/${BIN}
 
-.PHONY: all debug clean install uninstall
+.PHONY: all debug clean dist install uninstall
